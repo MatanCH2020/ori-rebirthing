@@ -9,7 +9,7 @@ const app = express();
 // Allow CORS from your domain
 app.use(cors({
     origin: ['https://matanch2020.github.io', 'http://localhost:3000'],
-    methods: ['POST'],
+    methods: ['POST', 'GET'],
     credentials: true
 }));
 
@@ -56,17 +56,13 @@ async function sendConfirmationEmail(formData) {
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: formData.email,
-        subject: 'תודה על פנייתך - ריברסינג עם אורי',
+        subject: 'תודה על פנייתך - אורי הירט, מטפל בריברסינג',
         html: `
-            <div dir="rtl" style="font-family: Arial, sans-serif;">
+            <div dir="rtl">
                 <h2>תודה על פנייתך!</h2>
                 <p>שלום ${formData.name},</p>
-                <p>קיבלנו את פנייתך בנושא טיפולי ריברסינג.</p>
-                <p>אנו מודים לך על ההתעניינות ונחזור אליך בהקדם.</p>
-                <br>
-                <p>בברכה,</p>
-                <p>אורי הירט</p>
-                <p>מטפל בריברסינג</p>
+                <p>קיבלתי את הודעתך ואחזור אליך בהקדם.</p>
+                <p>בברכה,<br>אורי הירט<br>מטפל בריברסינג</p>
             </div>
         `
     };
@@ -88,37 +84,40 @@ app.get('/', (req, res) => {
 app.post('/api/submit-form', async (req, res) => {
     try {
         const formData = req.body;
-        
-        // הוספה לגוגל שיטס
+        console.log('Received form data:', formData);
+
+        // הוספה לגיליון
         await addToSheet(formData);
-        
-        // שליחת אימייל אישור
+        console.log('Added to sheet successfully');
+
+        // שליחת אימייל
         await sendConfirmationEmail(formData);
+        console.log('Sent confirmation email');
 
-        // שליחת הודעת וואטסאפ
-        const whatsappMessage = `*פנייה חדשה מדף הנחיתה*\n\n` +
-            `*שם:* ${formData.name}\n` +
-            `*טלפון:* ${formData.phone}\n` +
-            `*אימייל:* ${formData.email}\n` +
+        // יצירת הודעת וואטסאפ
+        const whatsappMessage = `*פנייה חדשה מדף הנחיתה*%0A%0A` +
+            `*שם:* ${formData.name}%0A` +
+            `*טלפון:* ${formData.phone}%0A` +
+            `*אימייל:* ${formData.email}%0A` +
             `*הודעה:* ${formData.message}`;
-
-        const whatsappUrl = `https://api.whatsapp.com/send?phone=972524517021&text=${encodeURIComponent(whatsappMessage)}`;
         
+        const phoneNumber = '972524517021';
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
+
         res.json({ 
             success: true, 
-            message: 'הטופס נשלח בהצלחה',
-            whatsappUrl 
+            whatsappUrl: whatsappUrl 
         });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'אירעה שגיאה בשליחת הטופס' 
+            message: 'אירעה שגיאה בשרת. אנא נסה שוב מאוחר יותר.' 
         });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
