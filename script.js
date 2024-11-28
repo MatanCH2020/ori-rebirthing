@@ -25,11 +25,17 @@ fadeElements.forEach(element => {
 // Form Handling
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('contactForm');
-    if (!form) return; // אם אין טופס, לא ממשיכים
+    if (!form) {
+        console.error('Contact form not found');
+        return;
+    }
 
     const formStatus = document.getElementById('formStatus');
     const submitButton = form.querySelector('.submit-button');
-    if (!submitButton) return; // אם אין כפתור שליחה, לא ממשיכים
+    if (!submitButton) {
+        console.error('Submit button not found');
+        return;
+    }
 
     const buttonText = submitButton.querySelector('.button-text');
     const buttonLoader = submitButton.querySelector('.button-loader');
@@ -67,15 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = messageInput.value.trim();
 
         if (name.length < 2) {
+            nameInput.focus();
             throw new Error('נא להזין שם מלא (לפחות 2 תווים)');
         }
         if (!/^[\d-+\s()]{9,}$/.test(phone)) {
+            phoneInput.focus();
             throw new Error('נא להזין מספר טלפון תקין');
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            emailInput.focus();
             throw new Error('נא להזין כתובת אימייל תקינה');
         }
         if (message.length < 5) {
+            messageInput.focus();
             throw new Error('נא להזין הודעה (לפחות 5 תווים)');
         }
     };
@@ -97,15 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            const responseData = await response.json();
+
             if (response.ok) {
                 showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
                 form.reset();
             } else {
-                throw new Error('שגיאה בשליחת הטופס');
+                throw new Error(responseData.error || 'שגיאה בשליחת הטופס');
             }
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Form submission error:', error);
             showStatus(error.message || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.', 'error');
         } finally {
             setLoading(false);
