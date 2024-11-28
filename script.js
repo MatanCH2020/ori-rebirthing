@@ -87,20 +87,28 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
 
         try {
-            const formData = validateForm();
+            // וידוא תקינות הטופס
+            validateForm();
 
-            // Send to WhatsApp
-            const phone = '972547919977';
-            const whatsappMessage = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
-            window.open(`https://wa.me/${phone}?text=${whatsappMessage}`, '_blank');
+            // שליחת הטופס ל-Formspree
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
 
-            // Send to Email (you can add your email service here)
-            // For now, we'll just show success message
-            showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
-            form.reset();
+            if (response.ok) {
+                showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
+                form.reset();
+            } else {
+                throw new Error('שגיאה בשליחת הטופס');
+            }
 
         } catch (error) {
-            showStatus(error.message, 'error');
+            console.error('Error:', error);
+            showStatus(error.message || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.', 'error');
         } finally {
             setLoading(false);
         }
