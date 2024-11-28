@@ -110,36 +110,57 @@ if (form) {
 }
 
 // WhatsApp form submission functionality
-document.getElementById('contactForm').addEventListener('submit', function(e) {
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    // Get form data
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-    
-    // Create formatted WhatsApp message
-    const whatsappMessage = `*פנייה חדשה מדף הנחיתה*%0A%0A` +
-        `*שם:* ${name}%0A` +
-        `*טלפון:* ${phone}%0A` +
-        `*אימייל:* ${email}%0A` +
-        `*הודעה:* ${message}`;
-    
-    // מספר הטלפון המעודכן שלך
-    const phoneNumber = '972524517021';
-    
-    // יצירת הקישור לוואטסאפ
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
-    
-    // Display confirmation message
-    alert('תודה על פנייתך! מעביר אותך לוואטסאפ...');
-    
-    // Open WhatsApp
-    window.open(whatsappUrl, '_blank');
-    
-    // Reset form
-    this.reset();
+    // הצגת אנימציית טעינה
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = '...שולח';
+    submitButton.disabled = true;
+
+    try {
+        // איסוף נתוני הטופס
+        const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            message: document.getElementById('message').value
+        };
+
+        // שליחה לשרת
+        const response = await fetch('http://localhost:3000/api/submit-form', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // הצגת הודעת הצלחה
+            alert('תודה על פנייתך! נשלח אליך אימייל אישור.');
+            
+            // פתיחת וואטסאפ
+            if (result.whatsappUrl) {
+                window.open(result.whatsappUrl, '_blank');
+            }
+
+            // איפוס הטופס
+            this.reset();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        alert('אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.');
+        console.error('Form submission error:', error);
+    } finally {
+        // החזרת הכפתור למצב הרגיל
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    }
 });
 
 // Smooth scroll for navigation links
