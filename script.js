@@ -22,47 +22,75 @@ fadeElements.forEach(element => {
     fadeObserver.observe(element);
 });
 
-// הגדרת ה-URL של Google Apps Script
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwWNnFmrQcKM5O2vSnGdnyHSlr7p7vrf2h_DnU3HVqoKkq1Tg7rnLRnma1ytw7mLj3ew/exec';
+// Form Handling
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('contactForm');
+    const formStatus = document.getElementById('formStatus');
+    const submitButton = form.querySelector('.submit-button');
+    const buttonText = submitButton.querySelector('.button-text');
+    const buttonLoader = submitButton.querySelector('.button-loader');
 
-// טיפול בשליחת הטופס
-const form = document.getElementById('contactForm');
-const iframe = document.getElementById('hidden_iframe');
+    const showStatus = (message, type) => {
+        formStatus.textContent = message;
+        formStatus.className = `form-status ${type}`;
+        formStatus.style.display = 'block';
+        setTimeout(() => {
+            formStatus.style.display = 'none';
+        }, 5000);
+    };
 
-if (form && iframe) {
-    // טיפול בתגובה מהשרת
-    iframe.addEventListener('load', function() {
-        const submitButton = form.querySelector('button[type="submit"]');
-        if (submitButton.disabled) {  // רק אם הכפתור מושבת (כלומר, הטופס נשלח)
-            // שליחת הודעת WhatsApp
-            const formData = {
-                name: form.querySelector('#name').value.trim(),
-                phone: form.querySelector('#phone').value.trim(),
-                email: form.querySelector('#email').value.trim(),
-                message: form.querySelector('#message').value.trim()
-            };
+    const setLoading = (loading) => {
+        submitButton.disabled = loading;
+        buttonText.style.display = loading ? 'none' : 'block';
+        buttonLoader.style.display = loading ? 'block' : 'none';
+    };
 
+    const validateForm = () => {
+        const name = form.querySelector('#name').value.trim();
+        const phone = form.querySelector('#phone').value.trim();
+        const email = form.querySelector('#email').value.trim();
+        const message = form.querySelector('#message').value.trim();
+
+        if (name.length < 2) {
+            throw new Error('נא להזין שם מלא (לפחות 2 תווים)');
+        }
+        if (!/^[\d-+\s()]{9,}$/.test(phone)) {
+            throw new Error('נא להזין מספר טלפון תקין');
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new Error('נא להזין כתובת אימייל תקינה');
+        }
+        if (message.length < 5) {
+            throw new Error('נא להזין הודעה (לפחות 5 תווים)');
+        }
+
+        return { name, phone, email, message };
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const formData = validateForm();
+
+            // Send to WhatsApp
             const phone = '972547919977';
-            const message = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
-            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            const whatsappMessage = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
+            window.open(`https://wa.me/${phone}?text=${whatsappMessage}`, '_blank');
 
-            // הצגת הודעת הצלחה
-            alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
-            
-            // איפוס הטופס והכפתור
+            // Send to Email (you can add your email service here)
+            // For now, we'll just show success message
+            showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
             form.reset();
-            submitButton.textContent = 'שליחה';
-            submitButton.disabled = false;
+
+        } catch (error) {
+            showStatus(error.message, 'error');
+        } finally {
+            setLoading(false);
         }
     });
-
-    // טיפול בשליחת הטופס
-    form.addEventListener('submit', function() {
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.textContent = 'שולח...';
-        submitButton.disabled = true;
-    });
-}
+});
 
 // Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
