@@ -78,8 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message.length < 5) {
             throw new Error('נא להזין הודעה (לפחות 5 תווים)');
         }
-
-        return { name, phone, email, message };
     };
 
     form.addEventListener('submit', async (e) => {
