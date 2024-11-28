@@ -25,12 +25,17 @@ fadeElements.forEach(element => {
 // Form Handling
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('contactForm');
+    if (!form) return; // אם אין טופס, לא ממשיכים
+
     const formStatus = document.getElementById('formStatus');
     const submitButton = form.querySelector('.submit-button');
+    if (!submitButton) return; // אם אין כפתור שליחה, לא ממשיכים
+
     const buttonText = submitButton.querySelector('.button-text');
     const buttonLoader = submitButton.querySelector('.button-loader');
 
     const showStatus = (message, type) => {
+        if (!formStatus) return;
         formStatus.textContent = message;
         formStatus.className = `form-status ${type}`;
         formStatus.style.display = 'block';
@@ -40,16 +45,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const setLoading = (loading) => {
+        if (!submitButton || !buttonText || !buttonLoader) return;
         submitButton.disabled = loading;
         buttonText.style.display = loading ? 'none' : 'block';
         buttonLoader.style.display = loading ? 'block' : 'none';
     };
 
     const validateForm = () => {
-        const name = form.querySelector('#name').value.trim();
-        const phone = form.querySelector('#phone').value.trim();
-        const email = form.querySelector('#email').value.trim();
-        const message = form.querySelector('#message').value.trim();
+        const nameInput = form.querySelector('#name');
+        const phoneInput = form.querySelector('#phone');
+        const emailInput = form.querySelector('#email');
+        const messageInput = form.querySelector('#message');
+
+        if (!nameInput || !phoneInput || !emailInput || !messageInput) {
+            throw new Error('חסרים שדות בטופס');
+        }
+
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+        const email = emailInput.value.trim();
+        const message = messageInput.value.trim();
 
         if (name.length < 2) {
             throw new Error('נא להזין שם מלא (לפחות 2 תווים)');
