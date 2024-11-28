@@ -109,6 +109,63 @@ if (form) {
     });
 }
 
+// הפונקציה שמטפלת בשליחת הטופס
+async function submitForm(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    
+    submitButton.textContent = 'שולח...';
+    submitButton.disabled = true;
+
+    try {
+        // החלף את ה-URL הזה עם ה-URL של ה-Apps Script שלך
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+        
+        const formData = {
+            name: form.querySelector('#name').value.trim(),
+            phone: form.querySelector('#phone').value.trim(),
+            email: form.querySelector('#email').value.trim(),
+            message: form.querySelector('#message').value.trim()
+        };
+
+        // וידוא שכל השדות מלאים
+        for (const [key, value] of Object.entries(formData)) {
+            if (!value) {
+                throw new Error(`אנא מלא את כל השדות הנדרשים`);
+            }
+        }
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            mode: 'cors'
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
+            form.reset();
+        } else {
+            throw new Error(result.message || 'שגיאה בשליחת הטופס');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.');
+    } finally {
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
+}
+
+document.getElementById('contactForm').addEventListener('submit', submitForm);
+
 // WhatsApp form submission functionality
 document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
