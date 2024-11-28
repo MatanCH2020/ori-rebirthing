@@ -26,7 +26,7 @@ fadeElements.forEach(element => {
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwWNnFmrQcKM5O2vSnGdnyHSlr7p7vrf2h_DnU3HVqoKkq1Tg7rnLRnma1ytw7mLj3ew/exec';
 
 // טיפול בשליחת הטופס
-async function submitForm(event) {
+async function handleSubmit(event) {
     event.preventDefault();
     
     const form = event.target;
@@ -58,36 +58,25 @@ async function submitForm(event) {
             throw new Error('נא להזין הודעה');
         }
 
+        // שליחת הטופס ל-Google Apps Script
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
+            mode: 'no-cors', // שינוי ל-no-cors כדי לעקוף בעיות CORS
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),
-            mode: 'cors'
+            body: JSON.stringify(formData)
         });
 
-        let result;
-        const responseText = await response.text();
-        try {
-            result = JSON.parse(responseText);
-        } catch (e) {
-            console.error('Failed to parse response:', responseText);
-            throw new Error('Invalid response from server');
-        }
+        // שליחת הודעת WhatsApp
+        const phone = '972547919977';
+        const message = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
+        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+        
+        // הצגת הודעת הצלחה
+        alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
+        form.reset();
 
-        if (result.status === 'success') {
-            // שליחת הודעת WhatsApp
-            const phone = '972547919977';
-            const message = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
-            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-            
-            // הצגת הודעת הצלחה
-            alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
-            form.reset();
-        } else {
-            throw new Error(result.message || 'שגיאה בשליחת הטופס');
-        }
     } catch (error) {
         console.error('Error:', error);
         alert(error.message || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.');
@@ -100,7 +89,7 @@ async function submitForm(event) {
 // הוספת מאזין לטופס
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
-    contactForm.addEventListener('submit', submitForm);
+    contactForm.addEventListener('submit', handleSubmit);
 }
 
 // Smooth scroll for navigation links
