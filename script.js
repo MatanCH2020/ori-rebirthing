@@ -99,20 +99,28 @@ document.addEventListener('DOMContentLoaded', () => {
             validateForm();
 
             // שליחת הטופס ל-Formspree
+            const formData = new FormData(form);
             const response = await fetch(form.action, {
                 method: 'POST',
-                body: new FormData(form),
+                body: formData,
                 headers: {
                     'Accept': 'application/json'
                 }
             });
 
-            const responseData = await response.json();
+            let responseData;
+            try {
+                responseData = await response.json();
+            } catch (error) {
+                console.error('Error parsing response:', error);
+                throw new Error('שגיאה בעיבוד התגובה מהשרת');
+            }
 
             if (response.ok) {
                 showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
                 form.reset();
             } else {
+                console.error('Server error:', responseData);
                 throw new Error(responseData.error || 'שגיאה בשליחת הטופס');
             }
 
