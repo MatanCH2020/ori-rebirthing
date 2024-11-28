@@ -100,6 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // שליחת הטופס ל-Formspree
             const formData = new FormData(form);
+            
+            // Debug logs
+            console.log('Form URL:', form.action);
+            formData.forEach((value, key) => {
+                console.log(`${key}:`, value);
+            });
+
             const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -108,9 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+
             let responseData;
+            const responseText = await response.text();
+            console.log('Response text:', responseText);
+
             try {
-                responseData = await response.json();
+                responseData = JSON.parse(responseText);
             } catch (error) {
                 console.error('Error parsing response:', error);
                 throw new Error('שגיאה בעיבוד התגובה מהשרת');
