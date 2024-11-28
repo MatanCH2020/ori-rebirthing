@@ -109,6 +109,39 @@ if (form) {
     });
 }
 
+// WhatsApp form submission functionality
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+    
+    // Create formatted WhatsApp message
+    const whatsappMessage = `*פנייה חדשה מדף הנחיתה*%0A%0A` +
+        `*שם:* ${name}%0A` +
+        `*טלפון:* ${phone}%0A` +
+        `*אימייל:* ${email}%0A` +
+        `*הודעה:* ${message}`;
+    
+    // מספר הטלפון המעודכן שלך
+    const phoneNumber = '972524517021';
+    
+    // יצירת הקישור לוואטסאפ
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${whatsappMessage}`;
+    
+    // Display confirmation message
+    alert('תודה על פנייתך! מעביר אותך לוואטסאפ...');
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    // Reset form
+    this.reset();
+});
+
 // Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -126,7 +159,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 function handleSubmit(event) {
     event.preventDefault();
     
-    // קבלת הערכים מהטופס
+    // Get form data
     const formData = {
         name: document.getElementById('name').value,
         phone: document.getElementById('phone').value,
@@ -134,23 +167,23 @@ function handleSubmit(event) {
         message: document.getElementById('message').value
     };
 
-    // בדיקת תקינות בסיסית
+    // Basic validation
     if (!validateForm(formData)) {
         return false;
     }
 
-    // הצגת הודעת טעינה
+    // Display loading message
     const submitButton = document.querySelector('.cta-button');
     const originalText = submitButton.textContent;
     submitButton.textContent = '...שולח';
     submitButton.disabled = true;
 
-    // סימולציה של שליחת הטופס (כאן תוכל להוסיף את הקוד האמיתי לשליחת הטופס לשרת)
+    // Simulate form submission (replace with actual server-side code)
     setTimeout(() => {
-        // הצגת הודעת הצלחה
+        // Display success message
         showSuccessMessage();
         
-        // איפוס הטופס והכפתור
+        // Reset form and button
         document.getElementById('contactForm').reset();
         submitButton.textContent = originalText;
         submitButton.disabled = false;
@@ -160,20 +193,20 @@ function handleSubmit(event) {
 }
 
 function validateForm(formData) {
-    // בדיקת שם
+    // Name validation
     if (formData.name.length < 2) {
         showError('אנא הזן שם תקין');
         return false;
     }
 
-    // בדיקת טלפון
+    // Phone validation
     const phoneRegex = /^0[2-9]\d{7,8}$/;
     if (!phoneRegex.test(formData.phone)) {
         showError('אנא הזן מספר טלפון תקין');
         return false;
     }
 
-    // בדיקת אימייל
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
         showError('אנא הזן כתובת אימייל תקינה');
@@ -184,7 +217,7 @@ function validateForm(formData) {
 }
 
 function showError(message) {
-    // יצירת אלמנט להודעת שגיאה
+    // Create error message element
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.style.cssText = `
@@ -197,18 +230,18 @@ function showError(message) {
     `;
     errorDiv.textContent = message;
 
-    // הוספת ההודעה לתחילת הטופס
+    // Add error message to form
     const form = document.getElementById('contactForm');
     form.insertBefore(errorDiv, form.firstChild);
 
-    // הסרת ההודעה אחרי 3 שניות
+    // Remove error message after 3 seconds
     setTimeout(() => {
         errorDiv.remove();
     }, 3000);
 }
 
 function showSuccessMessage() {
-    // יצירת אלמנט להודעת הצלחה
+    // Create success message element
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message';
     successDiv.style.cssText = `
@@ -222,11 +255,11 @@ function showSuccessMessage() {
     `;
     successDiv.textContent = 'תודה רבה! פרטיך נקלטו בהצלחה, ניצור איתך קשר בהקדם.';
 
-    // הוספת ההודעה אחרי הטופס
+    // Add success message after form
     const form = document.getElementById('contactForm');
     form.parentNode.insertBefore(successDiv, form.nextSibling);
 
-    // הסרת ההודעה אחרי 5 שניות
+    // Remove success message after 5 seconds
     setTimeout(() => {
         successDiv.remove();
     }, 5000);
