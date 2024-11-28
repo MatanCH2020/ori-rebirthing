@@ -160,35 +160,29 @@
             </div>
         </section>
 
-        <section class="contact-form" id="contact">
+        <section id="contact" class="contact">
             <div class="container">
-                <div class="form-wrapper fade-in">
-                    <h2 class="section-title">צעד ראשון לשינוי</h2>
-                    <p>אל תתנו לפחד למנוע מכם את ההזדמנות לחיות חיים מלאים ומשוחררים</p>
-                    <form id="contactForm" onsubmit="submitForm(event)">
-                        <div class="form-group">
-                            <label for="name">השם שלך</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">טלפון</label>
-                            <input type="tel" id="phone" name="phone" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">אימייל</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">ספרו לי על עצמכם</label>
-                            <textarea id="message" name="message" required></textarea>
-                        </div>
-                        <button type="submit" class="submit-button">צרו קשר עכשיו ונתחיל יחד במסע</button>
-                    </form>
-                    <div class="form-footer">
-                        <p>* כל פנייה מטופלת באופן אישי ודיסקרטי</p>
-                        <p>* מענה תוך 24 שעות</p>
+                <h2 class="section-title">צרו קשר</h2>
+                <form id="contactForm" target="hidden_iframe" action="https://script.google.com/macros/s/AKfycbzwWNnFmrQcKM5O2vSnGdnyHSlr7p7vrf2h_DnU3HVqoKkq1Tg7rnLRnma1ytw7mLj3ew/exec" method="POST">
+                    <div class="form-group">
+                        <label for="name">שם מלא</label>
+                        <input type="text" id="name" name="name" required>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="phone">טלפון</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">אימייל</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">הודעה</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">שליחה</button>
+                </form>
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
             </div>
         </section>
     </main>

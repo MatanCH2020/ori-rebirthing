@@ -26,70 +26,40 @@ fadeElements.forEach(element => {
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwWNnFmrQcKM5O2vSnGdnyHSlr7p7vrf2h_DnU3HVqoKkq1Tg7rnLRnma1ytw7mLj3ew/exec';
 
 // טיפול בשליחת הטופס
-async function handleSubmit(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
-    
-    submitButton.textContent = 'שולח...';
-    submitButton.disabled = true;
+const form = document.getElementById('contactForm');
+const iframe = document.getElementById('hidden_iframe');
 
-    try {
-        const formData = {
-            name: form.querySelector('#name').value.trim(),
-            phone: form.querySelector('#phone').value.trim(),
-            email: form.querySelector('#email').value.trim(),
-            message: form.querySelector('#message').value.trim()
-        };
+if (form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.textContent = 'שולח...';
+        submitButton.disabled = true;
 
-        // בדיקת תקינות
-        if (!formData.name || formData.name.length < 2) {
-            throw new Error('נא להזין שם מלא');
-        }
-        if (!formData.phone || !/^[\d-+\s()]{9,}$/.test(formData.phone)) {
-            throw new Error('נא להזין מספר טלפון תקין');
-        }
-        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            throw new Error('נא להזין כתובת אימייל תקינה');
-        }
-        if (!formData.message || formData.message.length < 5) {
-            throw new Error('נא להזין הודעה');
-        }
+        // הוספת טיפול באירוע load של ה-iframe
+        iframe.addEventListener('load', function() {
+            // שליחת הודעת WhatsApp
+            const formData = {
+                name: form.querySelector('#name').value.trim(),
+                phone: form.querySelector('#phone').value.trim(),
+                email: form.querySelector('#email').value.trim(),
+                message: form.querySelector('#message').value.trim()
+            };
 
-        // שליחת הטופס ל-Google Apps Script
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // שינוי ל-no-cors כדי לעקוף בעיות CORS
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
+            const phone = '972547919977';
+            const message = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+
+            // הצגת הודעת הצלחה
+            alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
+            form.reset();
+            
+            // החזרת הכפתור למצב הרגיל
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
         });
-
-        // שליחת הודעת WhatsApp
-        const phone = '972547919977';
-        const message = `שם: ${formData.name}%0Aטלפון: ${formData.phone}%0Aאימייל: ${formData.email}%0Aהודעה: ${formData.message}`;
-        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-        
-        // הצגת הודעת הצלחה
-        alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
-        form.reset();
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב מאוחר יותר.');
-    } finally {
-        submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
-    }
-}
-
-// הוספת מאזין לטופס
-const contactForm = document.getElementById('contactForm');
-if (contactForm) {
-    contactForm.addEventListener('submit', handleSubmit);
+    });
 }
 
 // Smooth scroll for navigation links
