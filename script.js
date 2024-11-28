@@ -29,16 +29,11 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwWNnFmrQcKM5O2vSnG
 const form = document.getElementById('contactForm');
 const iframe = document.getElementById('hidden_iframe');
 
-if (form) {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+if (form && iframe) {
+    // טיפול בתגובה מהשרת
+    iframe.addEventListener('load', function() {
         const submitButton = form.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'שולח...';
-        submitButton.disabled = true;
-
-        // הוספת טיפול באירוע load של ה-iframe
-        iframe.addEventListener('load', function() {
+        if (submitButton.disabled) {  // רק אם הכפתור מושבת (כלומר, הטופס נשלח)
             // שליחת הודעת WhatsApp
             const formData = {
                 name: form.querySelector('#name').value.trim(),
@@ -53,12 +48,19 @@ if (form) {
 
             // הצגת הודעת הצלחה
             alert('תודה על פנייתך! ניצור איתך קשר בהקדם.');
-            form.reset();
             
-            // החזרת הכפתור למצב הרגיל
-            submitButton.textContent = originalButtonText;
+            // איפוס הטופס והכפתור
+            form.reset();
+            submitButton.textContent = 'שליחה';
             submitButton.disabled = false;
-        });
+        }
+    });
+
+    // טיפול בשליחת הטופס
+    form.addEventListener('submit', function() {
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.textContent = 'שולח...';
+        submitButton.disabled = true;
     });
 }
 
