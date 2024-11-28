@@ -67,11 +67,14 @@ async function submitForm(event) {
             mode: 'cors'
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        let result;
+        const responseText = await response.text();
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse response:', responseText);
+            throw new Error('Invalid response from server');
         }
-
-        const result = await response.json();
 
         if (result.status === 'success') {
             // שליחת הודעת WhatsApp
